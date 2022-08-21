@@ -37,6 +37,7 @@
     <span n:if="isset($thisUser) && $user->getId() == $thisUser->getId()"><b>({_this_is_you})</b></span>
     
     <!-- DEBUG: ONLINE REPORT: static {$user->getOnline()->timestamp()}s adjusted {$user->getOnline()->timestamp() + 2505600}s real {time()}s -->
+    {if !$user->isSystemProfile()}
     <div n:if="$user->getOnline()->timestamp() + 2505600 > time()" style="float:right;">
         {if $user->isOnline()}
             <span><b>{_online}</b></span>
@@ -47,6 +48,7 @@
     <div n:if="$user->onlineStatus() == 2" style="float:right;">
         <span><b>{_deceased_person}</b></span>
     </div>
+    {/if}
 {/block}
 
 {block content}
@@ -354,6 +356,8 @@
     
     <div class="right_big_block">
         <div class="page_info">
+            {var $isSystemProfile = $user->isSystemProfile()}
+            {var $systemProfileDescription = $user->getSystemProfileDescription()}
             <div n:if="!is_null($alert = $user->getAlert())" class="user-alert">{strpos($alert, "@") === 0 ? tr(substr($alert, 1)) : $alert}</div>
             {var $thatIsThisUser = isset($thisUser) && $user->getId() == $thisUser->getId()}
             <div n:if="$thatIsThisUser" class="page_status_popup" id="status_editor" style="display: none;">
@@ -367,7 +371,7 @@
             </div>
 			<div class="accountInfo clearFix">
                 <div class="profileName">
-                    <h2>{$user->getFullName()}</h2>
+                    <h2 n:attr="style => $user->hasNameColorCode() ? 'color: ' . $user->getNameColorCode() . ';' : false">{$user->getFullName()}</h2>
                     {if !is_null($user->getStatus())}
                         <div n:class="page_status, $thatIsThisUser ? page_status_edit_button" n:attr="id => $thatIsThisUser ? page_status_text : NULL">{$user->getStatus()}</div>
                     {elseif $thatIsThisUser}
@@ -536,7 +540,16 @@
             </div>
         </div>
         
-        {presenter "openvk!Wall->wallEmbedded", $user->getId()}
+        {if !$isSystemProfile}
+            {presenter "openvk!Wall->wallEmbedded", $user->getId()}
+        {else}
+            <br>
+            <center>
+                <span class="nobold">
+                    {$systemProfileDescription}
+                </span>
+            </center>
+        {/if}
         
         <script n:if="isset($thisUser) && $thisUser->getChandlerUser()->can('access')->model('admin')->whichBelongsTo(NULL)">
             function banUser() {

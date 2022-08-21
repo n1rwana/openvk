@@ -1017,6 +1017,31 @@ class User extends RowModel
     {
         return (bool) $this->getRecord()->activated;
     }
+
+    function isBtModerator(): bool
+    {
+        return $this->getChandlerUser()->can("admin")->model('openvk\Web\Models\Repositories\BugtrackerReports')->whichBelongsTo(NULL);
+    }
+
+    function isSystemProfile(): bool
+    {
+        return !empty($this->getRecord()->is_system);
+    }
+    
+    function getSystemProfileDescription(): ?string
+    {
+        return $this->getRecord()->is_system ?? NULL;
+    }
+
+    function hasNameColorCode(): bool
+    {
+        return (bool) $this->getRecord()->name_color_code;
+    }
+
+    function getNameColorCode(): ?string
+    {
+        return $this->getRecord()->name_color_code ?? NULL;
+    }
     
     use Traits\TSubscribable;
 }
